@@ -1,0 +1,105 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const pool = require('../config/db');
+const { JWT_SECRET } = require('../middlewares/auth.middleware');
+
+function sanitizeUser(user) {
+  return {
+    id: user.id,
+    full_name: user.full_name,
+    email: user.email,
+    role: user.role
+  };
+}
+
+async function loginAdmin(req, res) {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
+
+    const [rows] = await pool.query(
+      `
+      SELECT id, full_name, email, password_hash, role, is_active
+      FROM users
+      WHERE email = ?
+      LIMIT 1
+      `,
+      [email]
+    );
+
+    if (!rows.length) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    const user = rows[0];
+
+    if (!user.is_active) {
+      return res.status(403).json({ message: 'This account is inactive' });
+    }
+
+    if (user.role !== 'admin') {
+      return res.status(403).json({ message: 'Only admin accounts can access this area' });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    const token = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        full_name: user.full_name
+      },
+      JWT_SECRET,
+      { expiresIn: '8h' }
+    );
+
+    await pool.query(
+      'UPDATE users SET last_login_at = NOW() WHERE id = ?',
+      [user.id]
+    );
+
+    res.json({
+      token,
+      user: sanitizeUser(user)
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to log in' });
+  }
+}
+
+async function getCurrentAdmin(req, res) {
+  try {
+    const [rows] = await pool.query(
+      `
+      SELECT id, full_name, email, role
+      FROM users
+      WHERE id = ?
+      LIMIT 1
+      `,
+      [req.user.id]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ message: 'Admin account not found' });
+    }
+
+    res.json({ user: sanitizeUser(rows[0]) });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to load account details' });
+  }
+}
+
+module.exports = {
+  loginAdmin,
+  getCurrentAdmin
+};

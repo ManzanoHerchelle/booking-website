@@ -1,0 +1,148 @@
+const pool = require('../config/db');
+
+const defaultAmenitiesContent = {
+  eyebrow: 'Amenities',
+  title: 'What do we have to offer? A lot. Kinda...',
+  image_url: '',
+  image_alt: 'Amenities section image',
+  subtitle: ''
+};
+
+async function getPublicAmenitiesContent(req, res) {
+  try {
+    const [rows] = await pool.query(
+      `
+      SELECT
+        eyebrow,
+        title,
+        image_url,
+        image_alt,
+        subtitle
+      FROM amenities_content
+      ORDER BY id ASC
+      LIMIT 1
+      `
+    );
+
+    res.json(rows[0] || defaultAmenitiesContent);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to load amenities content' });
+  }
+}
+
+async function getAdminAmenitiesContent(req, res) {
+  try {
+    const [rows] = await pool.query(
+      `
+      SELECT
+        ac.*,
+        updater.full_name AS updated_by_name
+      FROM amenities_content ac
+      LEFT JOIN users updater ON updater.id = ac.updated_by
+      ORDER BY ac.id ASC
+      LIMIT 1
+      `
+    );
+
+    res.json(rows[0] || defaultAmenitiesContent);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to load amenities content' });
+  }
+}
+
+async function saveAmenitiesContent(req, res) {
+  try {
+    const {
+      eyebrow,
+      title,
+      image_url,
+      image_alt,
+      subtitle
+    } = req.body;
+
+    if (!eyebrow || !title) {
+      return res.status(400).json({
+        message: 'Eyebrow and title are required'
+      });
+    }
+
+    const [existingRows] = await pool.query(
+      'SELECT id FROM amenities_content ORDER BY id ASC LIMIT 1'
+    );
+
+    if (existingRows.length) {
+      const existingId = existingRows[0].id;
+
+      await pool.query(
+        `
+        UPDATE amenities_content
+        SET
+          eyebrow = ?,
+          title = ?,
+          image_url = ?,
+          image_alt = ?,
+          subtitle = ?,
+          updated_by = ?,
+          updated_at = NOW()
+        WHERE id = ?
+        `,
+        [
+          eyebrow,
+          title,
+          image_url || null,
+          image_alt || null,
+          subtitle || null,
+          req.user.id,
+          existingId
+        ]
+      );
+    } else {
+      await pool.query(
+        `
+        INSERT INTO amenities_content (
+          eyebrow,
+          title,
+          image_url,
+          image_alt,
+          subtitle,
+          updated_by
+        )
+        VALUES (?, ?, ?, ?, ?, ?)
+        `,
+        [
+          eyebrow,
+          title,
+          image_url || null,
+          image_alt || null,
+          subtitle || null,
+          req.user.id
+        ]
+      );
+    }
+
+    const [rows] = await pool.query(
+      `
+      SELECT
+        ac.*,
+        updater.full_name AS updated_by_name
+      FROM amenities_content ac
+      LEFT JOIN users updater ON updater.id = ac.updated_by
+      ORDER BY ac.id ASC
+      LIMIT 1
+      `
+    );
+
+    res.json(rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to save amenities content' });
+  }
+}
+
+module.exports = {
+  getPublicAmenitiesContent,
+  getAdminAmenitiesContent,
+  saveAmenitiesContent
+};

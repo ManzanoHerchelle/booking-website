@@ -1,0 +1,15 @@
+CREATE TABLE IF NOT EXISTS amenities_content (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    eyebrow VARCHAR(150) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    image_url VARCHAR(255) NULL,
+    image_alt VARCHAR(255) NULL,
+    subtitle TEXT NULL,
+    updated_by INT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_amenities_content_updated_by
+        FOREIGN KEY (updated_by) REFERENCES users(id)
+        ON UPDATE CASCADE
+        ON DELETE SET NULL
+) ENGINE=InnoDB;
