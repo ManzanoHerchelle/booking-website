@@ -83,15 +83,21 @@ sleep 2
 # Create Database and User
 print_section "Setting Up Database"
 
+# Drop database if exists (for clean setup)
+mysql -u root <<EOF
+DROP DATABASE IF EXISTS $DB_NAME;
+DROP USER IF EXISTS '$DB_USER'@'$DB_HOST';
+EOF
+
 # Create database and user
 mysql -u root <<EOF
-CREATE DATABASE IF NOT EXISTS $DB_NAME;
-CREATE USER IF NOT EXISTS '$DB_USER'@'$DB_HOST' IDENTIFIED BY '$DB_PASSWORD';
+CREATE DATABASE $DB_NAME;
+CREATE USER '$DB_USER'@'$DB_HOST' IDENTIFIED BY '$DB_PASSWORD';
 GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'$DB_HOST';
 FLUSH PRIVILEGES;
 EOF
 
-echo -e "${GREEN}✓ Database '$DB_NAME' created${NC}"
+echo -e "${GREEN}✓ Database '$DB_NAME' created (fresh)${NC}"
 echo -e "${GREEN}✓ User '$DB_USER' created${NC}"
 
 # Run migrations
