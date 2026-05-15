@@ -464,7 +464,6 @@ CREATE TABLE `room_transfers` (
   CONSTRAINT `fk_room_transfers_reservation` FOREIGN KEY (`reservation_id`) REFERENCES `reservations` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_room_transfers_reservation_room` FOREIGN KEY (`reservation_room_id`) REFERENCES `reservation_rooms` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_room_transfers_to_room` FOREIGN KEY (`to_room_id`) REFERENCES `rooms` (`id`) ON UPDATE CASCADE,
-  CONSTRAINT `chk_room_transfers_from_to_different` CHECK (`from_room_id` <> `to_room_id`),
   CONSTRAINT `chk_room_transfers_additional_amount` CHECK (`additional_amount` >= 0)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
