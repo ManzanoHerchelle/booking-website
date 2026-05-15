@@ -141,7 +141,13 @@ JWT_SECRET=$JWT_SECRET
 NODE_ENV=development
 EOF
 
-echo -e "${GREEN}✓ Backend .env file created${NC}"
+# Verify .env was created
+if [ -f ".env" ]; then
+    echo -e "${GREEN}✓ Backend .env file created${NC}"
+else
+    echo -e "${RED}✗ Failed to create .env file${NC}"
+    exit 1
+fi
 
 # Install dependencies
 if [ -f "package.json" ]; then
