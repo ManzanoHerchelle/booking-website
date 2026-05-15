@@ -110,7 +110,7 @@ CREATE TABLE `availability_blocks` (
   KEY `idx_availability_blocks_dates` (`start_date`,`end_date`,`status`),
   CONSTRAINT `fk_availability_blocks_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_availability_blocks_room` FOREIGN KEY (`room_id`) REFERENCES `rooms` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `CONSTRAINT_1` CHECK (`end_date` >= `start_date`)
+  CONSTRAINT `chk_availability_blocks_date_range` CHECK (`end_date` >= `start_date`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -216,7 +216,7 @@ CREATE TABLE `payments` (
   KEY `idx_payments_reservation` (`reservation_id`,`payment_status`),
   CONSTRAINT `fk_payments_recorded_by` FOREIGN KEY (`recorded_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_payments_reservation` FOREIGN KEY (`reservation_id`) REFERENCES `reservations` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `CONSTRAINT_1` CHECK (`amount` > 0)
+  CONSTRAINT `chk_payments_amount_positive` CHECK (`amount` > 0)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -258,10 +258,10 @@ CREATE TABLE `promos` (
   KEY `fk_promos_created_by` (`created_by`),
   KEY `idx_promos_active_dates` (`is_active`,`start_date`,`end_date`),
   CONSTRAINT `fk_promos_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `CONSTRAINT_1` CHECK (`discount_value` >= 0),
-  CONSTRAINT `CONSTRAINT_2` CHECK (`end_date` >= `start_date`),
-  CONSTRAINT `CONSTRAINT_3` CHECK (`minimum_nights` > 0),
-  CONSTRAINT `CONSTRAINT_4` CHECK (`minimum_rooms` > 0)
+  CONSTRAINT `chk_promos_discount_value` CHECK (`discount_value` >= 0),
+  CONSTRAINT `chk_promos_date_range` CHECK (`end_date` >= `start_date`),
+  CONSTRAINT `chk_promos_minimum_nights` CHECK (`minimum_nights` > 0),
+  CONSTRAINT `chk_promos_minimum_rooms` CHECK (`minimum_rooms` > 0)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -286,8 +286,8 @@ CREATE TABLE `refund_requests` (
   CONSTRAINT `fk_refund_requests_payment` FOREIGN KEY (`payment_id`) REFERENCES `payments` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_refund_requests_reservation` FOREIGN KEY (`reservation_id`) REFERENCES `reservations` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_refund_requests_reviewed_by` FOREIGN KEY (`reviewed_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `CONSTRAINT_1` CHECK (`requested_amount` >= 0),
-  CONSTRAINT `CONSTRAINT_2` CHECK (`approved_amount` is null or `approved_amount` >= 0)
+  CONSTRAINT `chk_refund_requests_requested_amount` CHECK (`requested_amount` >= 0),
+  CONSTRAINT `chk_refund_requests_approved_amount` CHECK (`approved_amount` is null or `approved_amount` >= 0)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -311,9 +311,9 @@ CREATE TABLE `reservation_charges` (
   CONSTRAINT `fk_reservation_charges_added_by` FOREIGN KEY (`added_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_reservation_charges_reservation` FOREIGN KEY (`reservation_id`) REFERENCES `reservations` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_reservation_charges_room` FOREIGN KEY (`reservation_room_id`) REFERENCES `reservation_rooms` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `CONSTRAINT_1` CHECK (`quantity` > 0),
-  CONSTRAINT `CONSTRAINT_2` CHECK (`unit_price` >= 0),
-  CONSTRAINT `CONSTRAINT_3` CHECK (`amount` >= 0)
+  CONSTRAINT `chk_reservation_charges_quantity` CHECK (`quantity` > 0),
+  CONSTRAINT `chk_reservation_charges_unit_price` CHECK (`unit_price` >= 0),
+  CONSTRAINT `chk_reservation_charges_amount` CHECK (`amount` >= 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -338,13 +338,13 @@ CREATE TABLE `reservation_rooms` (
   KEY `idx_reservation_rooms_room_dates` (`room_id`,`check_in_date`,`check_out_date`),
   CONSTRAINT `fk_reservation_rooms_reservation` FOREIGN KEY (`reservation_id`) REFERENCES `reservations` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_reservation_rooms_room` FOREIGN KEY (`room_id`) REFERENCES `rooms` (`id`) ON UPDATE CASCADE,
-  CONSTRAINT `CONSTRAINT_1` CHECK (`nightly_rate` >= 0),
-  CONSTRAINT `CONSTRAINT_2` CHECK (`nights` > 0),
-  CONSTRAINT `CONSTRAINT_3` CHECK (`adult_count` >= 1),
-  CONSTRAINT `CONSTRAINT_4` CHECK (`child_count` >= 0),
-  CONSTRAINT `CONSTRAINT_5` CHECK (`extra_guest_count` >= 0),
-  CONSTRAINT `CONSTRAINT_6` CHECK (`line_total` >= 0),
-  CONSTRAINT `CONSTRAINT_7` CHECK (`check_out_date` > `check_in_date`)
+  CONSTRAINT `chk_reservation_rooms_nightly_rate` CHECK (`nightly_rate` >= 0),
+  CONSTRAINT `chk_reservation_rooms_nights` CHECK (`nights` > 0),
+  CONSTRAINT `chk_reservation_rooms_adult_count` CHECK (`adult_count` >= 1),
+  CONSTRAINT `chk_reservation_rooms_child_count` CHECK (`child_count` >= 0),
+  CONSTRAINT `chk_reservation_rooms_extra_guest_count` CHECK (`extra_guest_count` >= 0),
+  CONSTRAINT `chk_reservation_rooms_line_total` CHECK (`line_total` >= 0),
+  CONSTRAINT `chk_reservation_rooms_check_out_date` CHECK (`check_out_date` > `check_in_date`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -409,16 +409,16 @@ CREATE TABLE `reservations` (
   CONSTRAINT `fk_reservations_guest` FOREIGN KEY (`guest_id`) REFERENCES `guests` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `fk_reservations_promo` FOREIGN KEY (`promo_id`) REFERENCES `promos` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_reservations_updated_by` FOREIGN KEY (`updated_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `CONSTRAINT_1` CHECK (`check_out_date` > `check_in_date`),
-  CONSTRAINT `CONSTRAINT_2` CHECK (`adult_count` >= 1),
-  CONSTRAINT `CONSTRAINT_3` CHECK (`child_count` >= 0),
-  CONSTRAINT `CONSTRAINT_4` CHECK (`subtotal_amount` >= 0),
-  CONSTRAINT `CONSTRAINT_5` CHECK (`discount_amount` >= 0),
-  CONSTRAINT `CONSTRAINT_6` CHECK (`extra_charges_amount` >= 0),
-  CONSTRAINT `CONSTRAINT_7` CHECK (`refund_amount` >= 0),
-  CONSTRAINT `CONSTRAINT_8` CHECK (`total_amount` >= 0),
-  CONSTRAINT `CONSTRAINT_9` CHECK (`amount_paid` >= 0),
-  CONSTRAINT `CONSTRAINT_10` CHECK (`balance_due` >= 0)
+  CONSTRAINT `chk_reservations_check_out_date` CHECK (`check_out_date` > `check_in_date`),
+  CONSTRAINT `chk_reservations_adult_count` CHECK (`adult_count` >= 1),
+  CONSTRAINT `chk_reservations_child_count` CHECK (`child_count` >= 0),
+  CONSTRAINT `chk_reservations_subtotal_amount` CHECK (`subtotal_amount` >= 0),
+  CONSTRAINT `chk_reservations_discount_amount` CHECK (`discount_amount` >= 0),
+  CONSTRAINT `chk_reservations_extra_charges_amount` CHECK (`extra_charges_amount` >= 0),
+  CONSTRAINT `chk_reservations_refund_amount` CHECK (`refund_amount` >= 0),
+  CONSTRAINT `chk_reservations_total_amount` CHECK (`total_amount` >= 0),
+  CONSTRAINT `chk_reservations_amount_paid` CHECK (`amount_paid` >= 0),
+  CONSTRAINT `chk_reservations_balance_due` CHECK (`balance_due` >= 0)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -464,8 +464,8 @@ CREATE TABLE `room_transfers` (
   CONSTRAINT `fk_room_transfers_reservation` FOREIGN KEY (`reservation_id`) REFERENCES `reservations` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_room_transfers_reservation_room` FOREIGN KEY (`reservation_room_id`) REFERENCES `reservation_rooms` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_room_transfers_to_room` FOREIGN KEY (`to_room_id`) REFERENCES `rooms` (`id`) ON UPDATE CASCADE,
-  CONSTRAINT `CONSTRAINT_1` CHECK (`from_room_id` <> `to_room_id`),
-  CONSTRAINT `CONSTRAINT_2` CHECK (`additional_amount` >= 0)
+  CONSTRAINT `chk_room_transfers_from_to_different` CHECK (`from_room_id` <> `to_room_id`),
+  CONSTRAINT `chk_room_transfers_additional_amount` CHECK (`additional_amount` >= 0)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -482,10 +482,10 @@ CREATE TABLE `room_types` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
-  CONSTRAINT `CONSTRAINT_1` CHECK (`base_capacity` > 0),
-  CONSTRAINT `CONSTRAINT_2` CHECK (`max_capacity` >= `base_capacity`),
-  CONSTRAINT `CONSTRAINT_3` CHECK (`base_price` >= 0),
-  CONSTRAINT `CONSTRAINT_4` CHECK (`extra_guest_fee` >= 0)
+  CONSTRAINT `chk_room_types_base_capacity` CHECK (`base_capacity` > 0),
+  CONSTRAINT `chk_room_types_max_capacity` CHECK (`max_capacity` >= `base_capacity`),
+  CONSTRAINT `chk_room_types_base_price` CHECK (`base_price` >= 0),
+  CONSTRAINT `chk_room_types_extra_guest_fee` CHECK (`extra_guest_fee` >= 0)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -509,8 +509,8 @@ CREATE TABLE `rooms` (
   KEY `fk_rooms_room_type` (`room_type_id`),
   KEY `idx_rooms_status` (`status`,`is_active`),
   CONSTRAINT `fk_rooms_room_type` FOREIGN KEY (`room_type_id`) REFERENCES `room_types` (`id`) ON UPDATE CASCADE,
-  CONSTRAINT `CONSTRAINT_1` CHECK (`price_override` is null or `price_override` >= 0),
-  CONSTRAINT `CONSTRAINT_2` CHECK (`max_guests_override` is null or `max_guests_override` > 0)
+  CONSTRAINT `chk_rooms_price_override` CHECK (`price_override` is null or `price_override` >= 0),
+  CONSTRAINT `chk_rooms_max_guests_override` CHECK (`max_guests_override` is null or `max_guests_override` > 0)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -548,9 +548,9 @@ CREATE TABLE `stay_extensions` (
   CONSTRAINT `fk_stay_extensions_reservation` FOREIGN KEY (`reservation_id`) REFERENCES `reservations` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_stay_extensions_reservation_room` FOREIGN KEY (`reservation_room_id`) REFERENCES `reservation_rooms` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_stay_extensions_reviewed_by` FOREIGN KEY (`reviewed_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `CONSTRAINT_1` CHECK (`requested_check_out_date` > `current_check_out_date`),
-  CONSTRAINT `CONSTRAINT_2` CHECK (`approved_check_out_date` is null or `approved_check_out_date` > `current_check_out_date`),
-  CONSTRAINT `CONSTRAINT_3` CHECK (`additional_amount` >= 0)
+  CONSTRAINT `chk_stay_extensions_requested_date` CHECK (`requested_check_out_date` > `current_check_out_date`),
+  CONSTRAINT `chk_stay_extensions_approved_date` CHECK (`approved_check_out_date` is null or `approved_check_out_date` > `current_check_out_date`),
+  CONSTRAINT `chk_stay_extensions_additional_amount` CHECK (`additional_amount` >= 0)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
