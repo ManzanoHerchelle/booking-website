@@ -261,13 +261,165 @@ async function createRoomTransfer(req, res) {
   }
 }
 
+async function updateCancellationRequest(req, res) {
+  try {
+    const { id } = req.params;
+    const { request_status, review_notes } = req.body;
+
+    if (!request_status) {
+      return res.status(400).json({ message: 'request_status is required' });
+    }
+
+    await pool.query(
+      `
+      UPDATE cancellation_requests
+      SET request_status = ?, review_notes = ?
+      WHERE id = ?
+      `,
+      [request_status, review_notes || null, id]
+    );
+
+    res.json({ message: 'Cancellation request updated successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to update cancellation request' });
+  }
+}
+
+async function deleteCancellationRequest(req, res) {
+  try {
+    const { id } = req.params;
+    await pool.query('DELETE FROM cancellation_requests WHERE id = ?', [id]);
+    res.json({ message: 'Cancellation request deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to delete cancellation request' });
+  }
+}
+
+async function updateRefundRequest(req, res) {
+  try {
+    const { id } = req.params;
+    const { request_status, response_notes } = req.body;
+
+    if (!request_status) {
+      return res.status(400).json({ message: 'request_status is required' });
+    }
+
+    await pool.query(
+      `
+      UPDATE refund_requests
+      SET request_status = ?, response_notes = ?
+      WHERE id = ?
+      `,
+      [request_status, response_notes || null, id]
+    );
+
+    res.json({ message: 'Refund request updated successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to update refund request' });
+  }
+}
+
+async function deleteRefundRequest(req, res) {
+  try {
+    const { id } = req.params;
+    await pool.query('DELETE FROM refund_requests WHERE id = ?', [id]);
+    res.json({ message: 'Refund request deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to delete refund request' });
+  }
+}
+
+async function updateStayExtension(req, res) {
+  try {
+    const { id } = req.params;
+    const { status, response_notes } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ message: 'status is required' });
+    }
+
+    await pool.query(
+      `
+      UPDATE stay_extensions
+      SET status = ?, response_notes = ?
+      WHERE id = ?
+      `,
+      [status, response_notes || null, id]
+    );
+
+    res.json({ message: 'Stay extension updated successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to update stay extension' });
+  }
+}
+
+async function deleteStayExtension(req, res) {
+  try {
+    const { id } = req.params;
+    await pool.query('DELETE FROM stay_extensions WHERE id = ?', [id]);
+    res.json({ message: 'Stay extension deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to delete stay extension' });
+  }
+}
+
+async function updateRoomTransfer(req, res) {
+  try {
+    const { id } = req.params;
+    const { status, notes } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ message: 'status is required' });
+    }
+
+    await pool.query(
+      `
+      UPDATE room_transfers
+      SET transfer_status = ?, notes = ?
+      WHERE id = ?
+      `,
+      [status, notes || null, id]
+    );
+
+    res.json({ message: 'Room transfer updated successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to update room transfer' });
+  }
+}
+
+async function deleteRoomTransfer(req, res) {
+  try {
+    const { id } = req.params;
+    await pool.query('DELETE FROM room_transfers WHERE id = ?', [id]);
+    res.json({ message: 'Room transfer deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to delete room transfer' });
+  }
+}
+
 module.exports = {
   getCancellationRequests,
   createCancellationRequest,
+  updateCancellationRequest,
+  deleteCancellationRequest,
   getRefundRequests,
   createRefundRequest,
+  updateRefundRequest,
+  deleteRefundRequest,
   getStayExtensions,
   createStayExtension,
+  updateStayExtension,
+  deleteStayExtension,
   getRoomTransfers,
-  createRoomTransfer
+  createRoomTransfer,
+  updateRoomTransfer,
+  deleteRoomTransfer
 };

@@ -1,4 +1,65 @@
+import { useState } from 'react';
+import MessageBox from '../components/MessageBox.jsx';
+import { apiPost } from '../services/api.js';
+
 function ContactPage() {
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    subject: '',
+    message: ''
+  });
+  const [message, setMessage] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  function handleChange(event) {
+    const { name, value } = event.target;
+    setForm((current) => ({
+      ...current,
+      [name]: value
+    }));
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+
+    if (!form.name || !form.email || !form.subject || !form.message) {
+      setMessage({
+        type: 'error',
+        text: 'Please fill in all required fields'
+      });
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      setMessage(null);
+
+      await apiPost('/inquiries', form);
+
+      setMessage({
+        type: 'success',
+        text: 'Your inquiry has been submitted successfully. We will respond to you soon!'
+      });
+
+      setForm({
+        name: '',
+        email: '',
+        phone: '',
+        subject: '',
+        message: ''
+      });
+    } catch (error) {
+      setMessage({
+        type: 'error',
+        text: error.message || 'Failed to submit inquiry'
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   return (
     <main className="main-grid">
       <section className="panel">
@@ -8,31 +69,35 @@ function ContactPage() {
           <p>Curious about us? Hit us up with your inquiries. We're friendly enough to answer them :)</p>
         </div>
 
-        <form className="booking-form">
+        <MessageBox message={message} />
+
+        <form className="booking-form" onSubmit={handleSubmit}>
           <div className="field-grid">
             <label>
               <span>Name</span>
-              <input placeholder="Juan Dela Cruz" />
+              <input name="name" value={form.name} onChange={handleChange} placeholder="Juan Dela Cruz" required />
             </label>
             <label>
               <span>Email</span>
-              <input type="email" placeholder="juan@example.com" />
+              <input type="email" name="email" value={form.email} onChange={handleChange} placeholder="juan@example.com" required />
             </label>
             <label>
               <span>Phone</span>
-              <input placeholder="09123456789" />
+              <input name="phone" value={form.phone} onChange={handleChange} placeholder="09123456789" />
             </label>
             <label>
               <span>Subject</span>
-              <input placeholder="Booking inquiry" />
+              <input name="subject" value={form.subject} onChange={handleChange} placeholder="Booking inquiry" required />
             </label>
           </div>
           <label className="full-width">
             <span>Message</span>
-            <textarea rows="5" placeholder="How can we help you?" />
+            <textarea name="message" rows="5" value={form.message} onChange={handleChange} placeholder="How can we help you?" required />
           </label>
           <div className="action-row">
-            <button type="button" className="btn btn-primary" disabled>Submit Inquiry</button>
+            <button type="submit" className="btn btn-primary" disabled={submitting}>
+              {submitting ? 'Submitting...' : 'Submit Inquiry'}
+            </button>
           </div>
         </form>
       </section>

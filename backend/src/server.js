@@ -17,6 +17,7 @@ const amenitiesCardRoutes = require('./routes/amenitiesCard.routes');
 const adminRoomRoutes = require('./routes/adminRoom.routes');
 const uploadRoutes = require('./routes/upload.routes');
 const adminOpsRoutes = require('./routes/adminOps.routes');
+const inquiryRoutes = require('./routes/inquiry.routes');
 
 // Import controller handlers for debug endpoints
 const reservationController = require('./controllers/reservation.controller');
@@ -86,7 +87,7 @@ app.use(availabilityRoutes);
 app.use(guestRoutes);
 app.use(reservationRoutes);
 app.use(paymentRoutes);
-app.use(requestRoutes);
+app.use('/requests', requestRoutes);
 app.use(adminAuthRoutes);
 app.use(homepageSlideRoutes);
 app.use(landingContentRoutes);
@@ -95,6 +96,7 @@ app.use(amenitiesCardRoutes);
 app.use(adminRoomRoutes);
 app.use(uploadRoutes);
 app.use(adminOpsRoutes);
+app.use('/inquiries', inquiryRoutes);
 
 // Temporary debug endpoints that call controller handlers directly
 app.post('/__debug/reservation-holds', (req, res) => {

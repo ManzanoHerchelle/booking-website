@@ -7,6 +7,7 @@ const navItems = [
   { to: '/payment', label: 'Payment' },
   { to: '/track', label: 'Track Booking' },
   { to: '/my-bookings', label: 'My Bookings' },
+  { to: '/requests', label: 'Requests' },
   { to: '/contact', label: 'Contact' },
   { to: '/terms', label: 'Terms' }
 ];
@@ -44,6 +45,7 @@ function SiteLayout() {
           <NavLink to="/payment">Payment</NavLink>
           <NavLink to="/track">Track Booking</NavLink>
           <NavLink to="/my-bookings">My Bookings</NavLink>
+          <NavLink to="/requests">Requests</NavLink>
           <NavLink to="/terms">Terms</NavLink>
         </div>
       </footer>

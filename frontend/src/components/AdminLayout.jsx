@@ -25,6 +25,21 @@ function AdminLayout() {
           <NavLink to="/admin/payments" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
             Payments
           </NavLink>
+          <NavLink to="/admin/inquiries" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+            Inquiries
+          </NavLink>
+          <NavLink to="/admin/cancellation-requests" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+            Cancellations
+          </NavLink>
+          <NavLink to="/admin/refund-requests" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+            Refunds
+          </NavLink>
+          <NavLink to="/admin/stay-extensions" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+            Extensions
+          </NavLink>
+          <NavLink to="/admin/room-transfers" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+            Room Changes
+          </NavLink>
           <NavLink to="/admin/operations" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
             Operations
           </NavLink>
